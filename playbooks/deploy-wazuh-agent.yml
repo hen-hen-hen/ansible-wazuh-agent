@@ -4,19 +4,19 @@
   become: yes
   tasks:
     - name: IDENTIFIER - This is Wazuh Agent Installation Playbook (raw mode)
-      raw: echo "Playbook loaded : Wazuh Agent Installation via raw"
+      raw: 'echo "Playbook loaded Wazuh Agent Installation via raw"'
 
     - name: Download Wazuh agent .deb (via wget)
-      raw: wget -O /tmp/wazuh-agent_4.12.0-1_amd64.deb https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.12.0-1_amd64.deb
+      raw: 'wget -O /tmp/wazuh-agent_4.12.0-1_amd64.deb https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.12.0-1_amd64.deb'
 
     - name: Install Wazuh agent .deb (via dpkg)
-      raw: WAZUH_MANAGER='10.80.0.20' dpkg -i /tmp/wazuh-agent_4.12.0-1_amd64.deb || apt -f install -y
+      raw: 'WAZUH_MANAGER="10.80.0.20" dpkg -i /tmp/wazuh-agent_4.12.0-1_amd64.deb || apt -f install -y'
 
     - name: Reload systemd
-      raw: systemctl daemon-reload
+      raw: 'systemctl daemon-reload'
 
     - name: Enable wazuh-agent service
-      raw: systemctl enable wazuh-agent
+      raw: 'systemctl enable wazuh-agent'
 
     - name: Start wazuh-agent service
-      raw: systemctl start wazuh-agent
+      raw: 'systemctl start wazuh-agent'
