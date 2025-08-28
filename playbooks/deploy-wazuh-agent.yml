@@ -1,62 +1,35 @@
-- name: Install Wazuh Agent 4.12.0-1
+- name: Install Wazuh Agent 4.12.0-1 via dpkg
   hosts: all
   gather_facts: false
   become: yes
   tasks:
-    - name: IDENTIFIER - This is Wazuh Agent Installation Playbook v1
+    - name: IDENTIFIER - This is Wazuh Agent Installation Playbook v2
       debug:
-        msg: "Playbook loaded : Wazuh Agent Installation"
+        msg: "Playbook loaded : Wazuh Agent Installation via dpkg"
 
-    - name: Add Wazuh GPG key
-      ansible.builtin.shell: |
-        curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
-      args:
-        executable: /bin/bash
-
-    - name: Add Wazuh repo
-      ansible.builtin.shell: |
-        echo "deb https://packages.wazuh.com/4.x/apt stable main" > /etc/apt/sources.list.d/wazuh.list
-      args:
-        executable: /bin/bash
-
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: yes
-
-    - name: Install Wazuh Agent version 4.12.0-1
-      ansible.builtin.apt:
-        name: wazuh-agent=4.12.0-1
-        state: present
-
-    - name: Configure Wazuh Agent manager IP
-      ansible.builtin.copy:
-        dest: /var/ossec/etc/ossec.conf
-        content: |
-          <client>
-            <server>
-              <address>10.80.0.20</address>
-              <port>1514</port>
-              <protocol>tcp</protocol>
-            </server>
-          </client>
-        owner: root
-        group: root
+    - name: Download Wazuh Agent .deb package
+      ansible.builtin.get_url:
+        url: https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.12.0-1_amd64.deb
+        dest: /tmp/wazuh-agent_4.12.0-1_amd64.deb
         mode: '0644'
 
+    - name: Install Wazuh Agent .deb package
+      ansible.builtin.shell: |
+        WAZUH_MANAGER='10.80.0.20' dpkg -i /tmp/wazuh-agent_4.12.0-1_amd64.deb
+      args:
+        executable: /bin/bash
+
     - name: Run systemctl daemon-reload
-      ansible.builtin.shell: |
-        systemctl daemon-reload
+      ansible.builtin.shell: systemctl daemon-reload
       args:
         executable: /bin/bash
 
-    - name: Enable wazuh-agent
-      ansible.builtin.shell: |
-        systemctl enable wazuh-agent
+    - name: Enable wazuh-agent service
+      ansible.builtin.shell: systemctl enable wazuh-agent
       args:
         executable: /bin/bash
 
-    - name: Start wazuh-agent
-      ansible.builtin.shell: |
-        systemctl start wazuh-agent
+    - name: Start wazuh-agent service
+      ansible.builtin.shell: systemctl start wazuh-agent
       args:
         executable: /bin/bash
