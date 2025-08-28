@@ -1,1 +1,7 @@
-
+- name: Deploy Wazuh Agent
+  hosts: all
+  become: yes
+  vars:
+    wazuh_manager_ip: "10.80.0.20"   # IP Wazuh Manager
+  roles:
+    - wazuh-agent
