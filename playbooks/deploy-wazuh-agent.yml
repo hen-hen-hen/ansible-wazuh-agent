@@ -1,7 +1,62 @@
-- name: Deploy Wazuh Agent
+- name: Install Wazuh Agent 4.12.0-1
   hosts: all
+  gather_facts: false
   become: yes
-  vars:
-    wazuh_manager_ip: "10.80.0.20"   # IP Wazuh Manager
-  roles:
-    - wazuh-agent
+  tasks:
+    - name: IDENTIFIER - This is Wazuh Agent Installation Playbook v1
+      debug:
+        msg: "Playbook loaded : Wazuh Agent Installation"
+
+    - name: Add Wazuh GPG key
+      ansible.builtin.shell: |
+        curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | apt-key add -
+      args:
+        executable: /bin/bash
+
+    - name: Add Wazuh repo
+      ansible.builtin.shell: |
+        echo "deb https://packages.wazuh.com/4.x/apt stable main" > /etc/apt/sources.list.d/wazuh.list
+      args:
+        executable: /bin/bash
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Wazuh Agent version 4.12.0-1
+      ansible.builtin.apt:
+        name: wazuh-agent=4.12.0-1
+        state: present
+
+    - name: Configure Wazuh Agent manager IP
+      ansible.builtin.copy:
+        dest: /var/ossec/etc/ossec.conf
+        content: |
+          <client>
+            <server>
+              <address>10.80.0.20</address>
+              <port>1514</port>
+              <protocol>tcp</protocol>
+            </server>
+          </client>
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Run systemctl daemon-reload
+      ansible.builtin.shell: |
+        systemctl daemon-reload
+      args:
+        executable: /bin/bash
+
+    - name: Enable wazuh-agent
+      ansible.builtin.shell: |
+        systemctl enable wazuh-agent
+      args:
+        executable: /bin/bash
+
+    - name: Start wazuh-agent
+      ansible.builtin.shell: |
+        systemctl start wazuh-agent
+      args:
+        executable: /bin/bash
