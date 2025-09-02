@@ -1,0 +1,22 @@
+- name: Uninstall Wazuh agent tanpa python
+  hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: IDENTIFIER - This is Wazuh Agent Uninstallation Playbook (raw mode)
+      raw: 'echo "Playbook loaded : Wazuh Agent Uninstallation via raw"'
+
+    - name: Stop wazuh-agent service
+      raw: 'systemctl stop wazuh-agent || true'
+
+    - name: Disable wazuh-agent service
+      raw: 'systemctl disable wazuh-agent || true'
+
+    - name: Remove wazuh-agent package
+      raw: 'apt remove --purge -y wazuh-agent || dpkg -r wazuh-agent || true'
+
+    - name: Autoremove unused dependencies
+      raw: 'apt autoremove -y || true'
+
+    - name: Remove Wazuh directories
+      raw: 'rm -rf /var/ossec /etc/ossec-init.conf /var/log/wazuh*'
